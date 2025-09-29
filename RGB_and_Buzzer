@@ -1,0 +1,90 @@
+//-------------------------------
+// Title: LUX
+//-------------------------------
+// Program Detail: generates a signal from a photoresistor that buzzes when low and an RGB that turns red when high
+//-------------------------------
+// Purpose: To interface a system using the ESP8266 with various sensors
+// Inputs: terminal input B, light via photoresistor
+// Outputs: LED, buzzer.
+// Date: 9/29/2025
+// Compiler: VS Code
+// Author: Logan Cacy
+// Versions:
+//    V1 – Initial Version
+
+//-------------------------------
+// File Dependencies: NA
+//-------------------------------
+
+#include <Arduino.h>
+
+//-------------------------------
+// Main Program
+//-------------------------------
+
+//Pin definitions 
+#define LDR_PIN A0        //Photoresistor 
+#define BUZZER_PIN D5     //Active buzzer
+#define RED_PIN D6        //red pin
+#define GREEN_PIN D7      //green pin
+#define BLUE_PIN D8       //blue pin
+
+int thresholdLux = 200;   //Lux threshold 
+
+int getLux() {
+  int sensorValue = analogRead(LDR_PIN);
+  float luxi = sensorValue * (400.0 / 925.0); //scales LUX to be 400 in the room
+  float lux;
+  if (luxi <= 400) {
+    lux = (luxi - 240) * (400 - 0) / (400 - 240) + 0; //scales the less than 400 from 400-240 to 400-0
+  } else {
+    lux = (luxi - 400.0) * (2000.0 - 400.0) / (442.0 - 400.0) + 400.0; //scales the over 400 values from 400-442 to 400-2000
+  }
+  
+  //cap values
+  if (lux < 0) lux = 0;
+  if (lux > 2000) lux = 2000;
+
+  return (int)lux;
+}
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(RED_PIN, OUTPUT);
+  pinMode(GREEN_PIN, OUTPUT);
+  pinMode(BLUE_PIN, OUTPUT);
+  digitalWrite(BUZZER_PIN, LOW);
+}
+
+void loop() {
+  int lux = getLux();
+  Serial.print("Measured Lux: ");
+  Serial.println(lux);
+
+  if (lux < thresholdLux) { //LUX=low then Buzzer=high
+    digitalWrite(BUZZER_PIN, HIGH);
+  } else {
+    digitalWrite(BUZZER_PIN, LOW);
+
+    int redVal = map(lux, thresholdLux, 2000, 0, 255); //current light, min active light, max, min, maxLEDval
+    redVal = constrain(redVal, 0, 255); //contrains to between 0 and 255
+
+    analogWrite(RED_PIN, redVal);
+    analogWrite(GREEN_PIN, 255 - redVal); //decreases green as red increases
+    analogWrite(BLUE_PIN, 255 - redVal); //decreases blue as red increases
+  }
+
+  // Condition 3: If user sends 'B' → buzzer ON for 5 seconds
+  if (Serial.available() > 0) {
+    char command = Serial.read();
+    if (command == 'B' || command == 'b') {
+      Serial.println("Buzzer Test: ON for 5 seconds");
+      digitalWrite(BUZZER_PIN, HIGH);
+      delay(5000);
+      digitalWrite(BUZZER_PIN, LOW);
+    }
+  }
+
+  delay(500); // Small delay for stability
+}

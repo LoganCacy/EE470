@@ -1,0 +1,100 @@
+-- ============================
+-- Create Tables
+-- ============================
+
+DROP TABLE IF EXISTS sensor_data;
+DROP TABLE IF EXISTS sensor_register;
+
+CREATE TABLE sensor_register (
+    node_name VARCHAR(10) PRIMARY KEY,
+    manufacturer VARCHAR(10) NOT NULL,
+    longitude DECIMAL(15,8) NOT NULL,
+    latitude DECIMAL(15,8) NOT NULL
+);
+
+CREATE TABLE sensor_data (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    node_name VARCHAR(10),
+    time_received DATETIME NOT NULL,
+    temperature DECIMAL(6,2) CHECK (temperature BETWEEN -10 AND 100),
+    humidity DECIMAL(6,2) CHECK (humidity BETWEEN 0 AND 100),
+    FOREIGN KEY (node_name) REFERENCES sensor_register(node_name)
+);
+
+-- ============================
+-- Insert Sensors (5 different)
+-- ============================
+
+INSERT INTO sensor_register (node_name, manufacturer, longitude, latitude)
+VALUES
+('node_1', 'MFG_A', -122.4194, 37.7749),
+('node_2', 'MFG_B', -118.2437, 34.0522),
+('node_3', 'MFG_C', -74.0060, 40.7128),
+('node_4', 'MFG_D', -87.6298, 41.8781),
+('node_5', 'MFG_E', -95.3698, 29.7604);
+
+-- ============================
+-- Insert Sensor Data
+-- Each node has 4 readings
+-- Every 30 minutes starting Oct 1, 2022 11:00
+-- ============================
+
+-- Node 1 readings
+INSERT INTO sensor_data (node_name, time_received, temperature, humidity) VALUES
+('node_1', '2022-10-01 11:00:00', 22.5, 55.0),
+('node_1', '2022-10-01 11:30:00', 23.0, 53.0),
+('node_1', '2022-10-01 12:00:00', 24.1, 50.0),
+('node_1', '2022-10-01 12:30:00', 25.0, 48.0);
+
+-- Node 2 readings
+INSERT INTO sensor_data (node_name, time_received, temperature, humidity) VALUES
+('node_2', '2022-10-01 11:00:00', 19.5, 60.0),
+('node_2', '2022-10-01 11:30:00', 20.0, 59.0),
+('node_2', '2022-10-01 12:00:00', 20.8, 57.0),
+('node_2', '2022-10-01 12:30:00', 21.3, 55.0);
+
+-- Node 3 readings
+INSERT INTO sensor_data (node_name, time_received, temperature, humidity) VALUES
+('node_3', '2022-10-01 11:00:00', 15.2, 70.0),
+('node_3', '2022-10-01 11:30:00', 16.0, 69.0),
+('node_3', '2022-10-01 12:00:00', 16.5, 67.5),
+('node_3', '2022-10-01 12:30:00', 17.0, 66.0);
+
+-- Node 4 readings
+INSERT INTO sensor_data (node_name, time_received, temperature, humidity) VALUES
+('node_4', '2022-10-01 11:00:00', 28.0, 40.0),
+('node_4', '2022-10-01 11:30:00', 28.5, 39.5),
+('node_4', '2022-10-01 12:00:00', 29.0, 39.0),
+('node_4', '2022-10-01 12:30:00', 29.5, 38.5);
+
+-- Node 5 readings
+INSERT INTO sensor_data (node_name, time_received, temperature, humidity) VALUES
+('node_5', '2022-10-01 11:00:00', 10.0, 80.0),
+('node_5', '2022-10-01 11:30:00', 10.5, 79.0),
+('node_5', '2022-10-01 12:00:00', 11.0, 78.0),
+('node_5', '2022-10-01 12:30:00', 11.5, 77.0);
+
+-- ============================
+-- Create Combined View
+-- ============================
+
+CREATE OR REPLACE VIEW sensor_combined AS
+SELECT 
+    sr.node_name,
+    sr.manufacturer,
+    sr.longitude,
+    sr.latitude,
+    sd.time_received,
+    sd.temperature,
+    sd.humidity
+FROM sensor_data sd
+JOIN sensor_register sr
+ON sd.node_name = sr.node_name;
+
+-- ============================
+-- Check Data
+-- ============================
+
+SELECT * FROM sensor_register;
+SELECT * FROM sensor_data;
+SELECT * FROM sensor_combined;

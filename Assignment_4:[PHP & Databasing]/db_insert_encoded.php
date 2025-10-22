@@ -4,9 +4,9 @@ ini_set('display_errors', 1);
 
 // Database connection
 $servername = "localhost";
-$username = "u137220217_db_logancacy";
-$password = "S@lty123";
-$dbname = "u137220217_logancacy";
+$username = ;
+$password = ;
+$dbname = ;
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {

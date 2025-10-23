@@ -27,8 +27,8 @@ void setup() {
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   pinMode(TILT_PIN, INPUT_PULLUP);
 
-  Serial.println("\n✅ WiFi Connected");
-  Serial.print("📡 MAC Address: ");
+  Serial.println("WiFi Connected");
+  Serial.print("MAC Address: ");
   Serial.println(WiFi.macAddress());
   
   WiFi.begin(ssid, password);
@@ -37,7 +37,7 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
-  Serial.println("\n✅ WiFi Connected");
+  Serial.println("WiFi Connected");
 
   init_dht();          // start sensor
   select_timezone();   // 🕒 prompt user for zone before first reading

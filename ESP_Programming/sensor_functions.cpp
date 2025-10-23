@@ -22,10 +22,9 @@
 // Main Program
 //-------------------------------
 
-// ===== Globals =====
 const char* ssid     = "Cy's S24 Ultra";
 const char* password = "pklq795@";
-const char* serverName = "https://www.logancacy.com/db_insert.php?";  //point to db_insert.php, not ESP_display.php
+const char* serverName = "https://www.logancacy.com/db_insert.php?";  
 String selectedZone = "America/Los_Angeles";   // default (Pacific Time)
 String currentTime = "";
 float tempValue = 0.0;
@@ -34,19 +33,19 @@ int node_id = 0;
 
 DHTesp dht;   //use DHTesp object
 
-// ===== Detect which switch is pressed =====
+//Detect switch is pressed 
 void check_switch() {
-  if (digitalRead(BUTTON_PIN) == LOW) {   // Node_1 trigger
+  if (digitalRead(BUTTON_PIN) == LOW) {   // Node_1 
     node_id = 1;
     read_sensor();
   } 
-  else if (digitalRead(TILT_PIN) == LOW) { // Node_2 trigger
+  else if (digitalRead(TILT_PIN) == LOW) { // Node_2 
     node_id = 2;
     read_sensor();
   }
 }
 
-// ===== Get current time from API =====
+//current time
 void read_time() {
   if (WiFi.status() == WL_CONNECTED) {
     WiFiClientSecure client;   //use WiFiClientSecure for HTTPS
@@ -62,9 +61,9 @@ void read_time() {
       DynamicJsonDocument doc(1024);
       deserializeJson(doc, payload);
       currentTime = doc["dateTime"].as<String>();
-      Serial.println("🕒 Time received: " + currentTime);
+      Serial.println("Time received: " + currentTime);
     } else {
-      Serial.println("❌ Failed to fetch time: " + String(code));
+      Serial.println("Failed to fetch time: " + String(code));
     }
 
     http.end();
@@ -73,7 +72,7 @@ void read_time() {
   }
 }
 
-// ===== Read Temperature & Humidity (DHTesp) =====
+//Read Temperature & Humidity (DHTesp)
 void read_sensor() {
   TempAndHumidity data = dht.getTempAndHumidity();
 
@@ -95,7 +94,7 @@ void read_sensor() {
   transmit();
 }
 
-// ===== Transmit Data =====
+//Transmit data
 void transmit() {
   if (WiFi.status() == WL_CONNECTED) {
     WiFiClientSecure client;      //Secure client for HTTPS
@@ -129,7 +128,6 @@ void transmit() {
     Serial.println("WiFi not connected");
   }
 }
-
 
 void init_dht() {
   dht.setup(DHT_PIN, DHTesp::DHT11);   // or DHT22 if you're using that model

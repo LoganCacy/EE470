@@ -1,4 +1,26 @@
+//-------------------------------
+// Title: sensor_functions.cpp
+//-------------------------------
+// Program Detail: defines the specific programming of functions from sensor_functions.h
+//-------------------------------
+// Purpose: defines the specific functions for the program that will read and transmit sensor data.
+// Inputs: sensor data (D5), node 1 (D2), node 2 (D3)
+// Outputs: data into a data base
+// Date: 10/22/2025
+// Compiler: VS Code
+// Author: Logan Cacy
+// Versions:
+//    V1 – Initial Version
+
+//-------------------------------
+// File Dependencies:
+//-------------------------------
+
 #include "sensor_functions.h"
+
+//-------------------------------
+// Main Program
+//-------------------------------
 
 // ===== Globals =====
 const char* ssid     = "Cy's S24 Ultra";

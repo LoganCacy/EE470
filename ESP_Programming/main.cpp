@@ -40,10 +40,10 @@ void setup() {
   Serial.println("WiFi Connected");
 
   init_dht();          // start sensor
-  select_timezone();   // 🕒 prompt user for zone before first reading
+  select_timezone();   // prompt user 
 }
 
 void loop() {
-  check_switch();   // Detect which switch triggered a node
-  delay(200);       // simple debounce
+  check_switch();   // Detect switch triggered 
+  delay(200);       
 }

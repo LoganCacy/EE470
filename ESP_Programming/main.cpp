@@ -1,4 +1,26 @@
+//-------------------------------
+// Title: main.cpp
+//-------------------------------
+// Program Detail: runs code using the functions from sensor_function.cpp
+//-------------------------------
+// Purpose: runs the functions from sensor_functions.cpp
+// Inputs: sensor data (D5), node 1 (D2), node 2 (D3)
+// Outputs: data into a data base
+// Date: 10/22/2025
+// Compiler: VS Code
+// Author: Logan Cacy
+// Versions:
+//    V1 – Initial Version
+
+//-------------------------------
+// File Dependencies:
+//-------------------------------
+
 #include "sensor_functions.h"
+
+//-------------------------------
+// Main Program
+//-------------------------------
 
 void setup() {
   Serial.begin(115200);

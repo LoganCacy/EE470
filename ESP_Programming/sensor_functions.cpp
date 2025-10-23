@@ -25,16 +25,16 @@
 // ===== Globals =====
 const char* ssid     = "Cy's S24 Ultra";
 const char* password = "pklq795@";
-const char* serverName = "https://www.logancacy.com/db_insert.php?";  // ✅ point to db_insert.php, not ESP_display.php
+const char* serverName = "https://www.logancacy.com/db_insert.php?";  //point to db_insert.php, not ESP_display.php
 String selectedZone = "America/Los_Angeles";   // default (Pacific Time)
 String currentTime = "";
 float tempValue = 0.0;
 float humidValue = 0.0;
 int node_id = 0;
 
-DHTesp dht;   // ✅ use DHTesp object
+DHTesp dht;   //use DHTesp object
 
-// ===== 1️⃣ Detect which switch is pressed =====
+// ===== Detect which switch is pressed =====
 void check_switch() {
   if (digitalRead(BUTTON_PIN) == LOW) {   // Node_1 trigger
     node_id = 1;
@@ -46,11 +46,11 @@ void check_switch() {
   }
 }
 
-// ===== 2️⃣ Get current time from API =====
+// ===== Get current time from API =====
 void read_time() {
   if (WiFi.status() == WL_CONNECTED) {
-    WiFiClientSecure client;   // ✅ use WiFiClientSecure for HTTPS
-    client.setInsecure();      // ✅ disable certificate check (safe for classroom/testing)
+    WiFiClientSecure client;   //use WiFiClientSecure for HTTPS
+    client.setInsecure();      //disable certificate check (safe for classroom/testing)
     HTTPClient http;
 
     String apiURL = "https://timeapi.io/api/Time/current/zone?timeZone=" + selectedZone;
@@ -73,12 +73,12 @@ void read_time() {
   }
 }
 
-// ===== 3️⃣ Read Temperature & Humidity (DHTesp) =====
+// ===== Read Temperature & Humidity (DHTesp) =====
 void read_sensor() {
   TempAndHumidity data = dht.getTempAndHumidity();
 
   if (isnan(data.temperature) || isnan(data.humidity)) {
-    Serial.println("❌ Failed to read from DHT sensor!");
+    Serial.println("Failed to read from DHT sensor!");
     return;
   }
 
@@ -95,11 +95,11 @@ void read_sensor() {
   transmit();
 }
 
-// ===== 4️⃣ Transmit Data =====
+// ===== Transmit Data =====
 void transmit() {
   if (WiFi.status() == WL_CONNECTED) {
-    WiFiClientSecure client;      // ✅ Secure client for HTTPS
-    client.setInsecure();         // ✅ Skip certificate check
+    WiFiClientSecure client;      //Secure client for HTTPS
+    client.setInsecure();         //Skip certificate check
     HTTPClient http;
 
     http.begin(client, serverName);
@@ -111,7 +111,7 @@ void transmit() {
                       "&nodeHumidity=" + String(humidValue, 1) +
                       "&timeReceived=" + currentTime;
 
-    Serial.println("➡️ Sending to: " + String(serverName));
+    Serial.println("Sending to: " + String(serverName));
     Serial.println("Data: " + postData);
 
     int httpCode = http.POST(postData);
@@ -121,7 +121,7 @@ void transmit() {
       String response = http.getString();
       Serial.println("Server Response: " + response);
     } else {
-      Serial.println("❌ HTTP POST failed");
+      Serial.println("HTTP POST failed");
     }
 
     http.end();
@@ -133,7 +133,7 @@ void transmit() {
 
 void init_dht() {
   dht.setup(DHT_PIN, DHTesp::DHT11);   // or DHT22 if you're using that model
-  Serial.println("✅ DHT sensor initialized!");
+  Serial.println("DHT sensor initialized!");
 }
 
 void select_timezone() {
@@ -163,6 +163,6 @@ void select_timezone() {
     default:  selectedZone = "America/Los_Angeles"; break;  // default PT
   }
 
-  Serial.print("✅ Time zone selected: ");
+  Serial.print("Time zone selected: ");
   Serial.println(selectedZone);
 }

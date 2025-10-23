@@ -21,7 +21,6 @@ void check_switch();
 void read_time();
 void read_sensor();
 void transmit();
-void check_error();
 void init_dht();
 void select_timezone();
 

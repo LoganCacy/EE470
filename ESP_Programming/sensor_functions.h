@@ -1,3 +1,21 @@
+//-------------------------------
+// Title: sensor_functions.h
+//-------------------------------
+// Program Detail: defines the functions for sensor_functions.cpp
+//-------------------------------
+// Purpose: defines the functions for the program that will read and transmit sensor data.
+// Inputs: sensor data (D5), node 1 (D2), node 2 (D3)
+// Outputs: data into a data base
+// Date: 10/22/2025
+// Compiler: VS Code
+// Author: Logan Cacy
+// Versions:
+//    V1 – Initial Version
+
+//-------------------------------
+// File Dependencies:
+//-------------------------------
+
 #ifndef SENSOR_FUNCTIONS_H
 #define SENSOR_FUNCTIONS_H
 
@@ -5,7 +23,11 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <ArduinoJson.h>
-#include <DHTesp.h>     // ✅ using DHTesp library
+#include <DHTesp.h>     //using DHTesp library
+
+//-------------------------------
+// Main Program
+//-------------------------------
 
 // ===== Pin Definitions =====
 #define DHT_PIN D5          // DHT sensor data pin

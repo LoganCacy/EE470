@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LED Control</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+    button {
+      font-size: 20px; padding: 10px 20px;
+      margin: 10px; cursor: pointer; border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Remote LED Control</h2>
+
+  <button onclick="ledControl('ON')" style="background-color:lightgreen;">Turn ON</button>
+  <button onclick="ledControl('OFF')" style="background-color:tomato;">Turn OFF</button>
+
+  <p id="status"></p>
+
+  <script>
+    function ledControl(state) {
+      fetch('results.php?status=' + state)
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('status').innerText = "LED set to: " + state;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+  </script>
+</body>
+</html>

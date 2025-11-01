@@ -1,0 +1,140 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+
+// ===== WiFi credentials =====
+const char* ssid = "Cy's S24 Ultra";
+const char* password = "pklq795@";
+
+// ===== Hostinger file URLs =====
+const char* ledFileURL  = "https://www.logancacy.com/results.txt";  // Part 2A file
+const char* colorFileURL = "https://www.logancacy.com/color.txt";   // Part 2B file
+const char* googleFormURL = "https://script.google.com/macros/s/AKfycbygBICOM3ygfvxY0wYYQpZQMromqdidYxkpNxSKwmymYvQZl85BTwr6uvXk1b-cKw1aLw/exec";
+
+// ===== Pin assignments =====
+const int ledPin     = D4;  // ON/OFF LED
+const int buttonPin  = D2;  // Button
+const int redPin     = D5;  // Red channel of RGB (0–255 brightness)
+
+void checkLEDStatus();
+void checkRGBStatus();
+void sendSensorData(int rValue);
+
+bool lastButtonState = HIGH; // default
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(ledPin, OUTPUT);
+  pinMode(buttonPin, INPUT_PULLUP);
+  pinMode(redPin, OUTPUT);
+
+  // Connect to Wi-Fi
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nWiFi connected!");
+}
+
+void loop() {
+  bool buttonState = digitalRead(buttonPin);
+
+  if (buttonState == LOW && lastButtonState == HIGH) {
+    Serial.println("Button pressed → checking Hostinger files...");
+    checkLEDStatus();   
+    checkRGBStatus();   
+    delay(300);         
+  }
+
+  lastButtonState = buttonState;
+}
+
+void checkLEDStatus() {
+  if (WiFi.status() == WL_CONNECTED) {
+    WiFiClientSecure client;
+    client.setInsecure();
+    HTTPClient http;
+
+    http.begin(client, ledFileURL);
+    int httpCode = http.GET();
+
+    if (httpCode == 200) {
+      String payload = http.getString();
+      Serial.println("LED file: " + payload);
+
+      if (payload.indexOf("LED=ON") >= 0) {
+        digitalWrite(ledPin, HIGH);
+        Serial.println("LED turned ON");
+      } else if (payload.indexOf("LED=OFF") >= 0) {
+        digitalWrite(ledPin, LOW);
+        Serial.println("LED turned OFF");
+      } else {
+        Serial.println("Unexpected LED file format");
+      }
+    } else {
+      Serial.println("HTTP error reading LED file: " + String(httpCode));
+    }
+
+    http.end();
+  } else {
+    Serial.println("WiFi disconnected (LED check)");
+  }
+}
+
+void checkRGBStatus() {
+  if (WiFi.status() == WL_CONNECTED) {
+    WiFiClientSecure client;
+    client.setInsecure();
+    HTTPClient http;
+
+    http.begin(client, colorFileURL);
+    int httpCode = http.GET();
+
+    if (httpCode == 200) {
+      String payload = http.getString();
+      Serial.println("RGB file: " + payload);
+
+      int r = payload.substring(payload.indexOf("R=") + 2).toInt();
+      r = constrain(r, 0, 255);
+
+      analogWrite(redPin, r);
+      Serial.printf("Set Red brightness to %d\n", r);
+
+      sendSensorData(r);
+
+    } else {
+      Serial.println("HTTP error reading RGB file: " + String(httpCode));
+    }
+
+    http.end();
+  } else {
+    Serial.println("WiFi disconnected (RGB check)");
+  }
+}
+
+
+void sendSensorData(int rValue) {
+  if (WiFi.status() == WL_CONNECTED) {
+    WiFiClientSecure client;
+    client.setInsecure();               // skip certificate validation
+    client.setBufferSizes(5120, 5120);  // increase SSL buffer size (important)
+    
+    HTTPClient http;
+    http.setTimeout(15000);             // 15 seconds timeout for HTTPS handshake
+
+    String url = String(googleFormURL) + "?sensor=" + String(rValue);
+    Serial.println("Sending to Google Sheets: " + url);
+
+    if (http.begin(client, url)) {
+      int httpCode = http.GET();
+      String response = http.getString();
+      Serial.printf("HTTP code: %d | Response: %s\n", httpCode, response.c_str());
+      http.end();
+    } else {
+      Serial.println("HTTP begin() failed!");
+    }
+  } else {
+    Serial.println("WiFi disconnected (sensor send)");
+  }
+}
